@@ -1,11 +1,13 @@
 var bow , arrow,  scene;
 var bowImage, arrowImage, green_balloonImage, red_balloonImage, pink_balloonImage ,blue_balloonImage, backgroundImage;
- var redB,blueB,pinkB,score=0,greenB,arrowGroup
-var PLAY,END
-var gamestate=PLAY
+var arrowGroup,pinkB,redB,blueB,greenB
+var score=0
+var gamestate = PLAY
+var PLAY = 0
+ 
 
-function preload(){
-  
+ function preload() {
+
   backgroundImage = loadImage("background0.png");
   arrowImage = loadImage("arrow0.png");
   bowImage = loadImage("bow0.png");
@@ -13,9 +15,8 @@ function preload(){
   green_balloonImage = loadImage("green_balloon0.png");
   pink_balloonImage = loadImage("pink_balloon0.png");
   blue_balloonImage = loadImage("blue_balloon0.png");
-  
 }
-
+ 
 
 function setup() {
   createCanvas(400, 400);
@@ -30,98 +31,96 @@ function setup() {
   bow.addImage(bowImage); 
   bow.scale = 1;
   
-     
+  greenB= new Group()
+  arrowGroup= new Group()
+  redB= new Group()
+  blueB= new Group()
+  pinkB= new Group()
+
+   score = 0    
 }
+
 
 function draw() {
  background(0);
-  // moving ground
-    scene.velocityX = -3 
-
+    
     if (scene.x < 0){
       scene.x = scene.width/2;
     }
- console.log(gamestate=PLAY)
+ // moving ground
+ scene.velocityX = -3 
+ //moving bow
+ bow.y = World.mouseY
+ 
 
+// release arrow when space key is pressed
+if (keyDown("space")) {
+  createArrow(); 
+ }
 
-if(gamestate===PLAY){
+//creating continous enemies
+var select_balloon = Math.round(random(1,4));
 
-fill("black")
-textSize(20)
-text("Score: " + score ,200,200)
-  
-  bow.y = World.mouseY
-
-  // release arrow when space key is pressed
-  if (keyDown("space")) {
-    createArrow()
+if (World.frameCount % 100 == 0) {
+ if (select_balloon == 1) {
+   redBalloon();
+ } else if (select_balloon == 2) {
+   greenBalloon();
+ } else if (select_balloon == 3) {
+   blueBalloon();
+ } else {
+   pinkBalloon();
+ }
+} 
+//destroying balloons 
+if(arrowGroup.isTouching(redB)){
+redB.destroyEach()
+arrowGroup.destroyEach()
+score=score+1
+}
+if(arrowGroup.isTouching(blueB)){
+blueB.destroyEach()
+arrowGroup.destroyEach()
+score=score+2
+}
+if(arrowGroup.isTouching(pinkB)){
+  pinkB.destroyEach()
+  arrowGroup.destroyEach()
+  score=score+1
   }
-  if(arrowGroup.isTouching(redB)){
-    redB.destroyEach()
-    arrowGroup.destroyEach()
-    score=score+1
-        }
-    
-    if(arrowGroup.isTouching(blueB)){
-    blueB.destroyEach()
-    arrowGroup.destroyEach()
-    score=score+2
-    }
-    
-    if(arrowGroup.isTouching(greenB)){
+  if(arrowGroup.isTouching(greenB)){
     greenB.destroyEach()
     arrowGroup.destroyEach()
     score=score+3
-    }
+  }
+
+
+ if(redBalloon>400){
+   text("GAME OVER!",200,200)
+ }
+ if(blueBalloon>400){
+  text("GAME OVER!",200,200)
+}
+if(greenBalloon>400){
+  text("GAME OVER!",200,200)
+}
+if(pinkBalloon>400){
+  text("GAME OVER!",200,200)
+}
+
     
-    if(arrowGroup.isTouching(pinkB)){
-      pinkB.destroyEach()
-      arrowGroup.destroyEach()
-      score=score+1
-      }
-  //creating continous enemies
-  var select_balloon = Math.round(random(1,4));
-  
-  if (World.frameCount % 100 == 0) {
-    if (select_balloon == 1) {
-      redBalloon();
-    } else if (select_balloon == 2) {
-      greenBalloon();
-    } else if (select_balloon == 3) {
-      blueBalloon();
-    } else {
-      pinkBalloon();
-    }
-  }  
-  
-if(score=15){
-  gamestate=END
-} 
-  
-}
-
-
-if(gamestate===End)
-{
-  red.velocityX=0
-  blue.velocityX=0
-  green.velocityX=0
-  pink.velocityX=0
-}
-
-
   drawSprites();
-  
- 
+  fill("black")
+  textSize(20)
+  text("Score: "+ score, 300,50);
 }
 
 
 // Creating  arrows for bow
  function createArrow() {
-  var arrow= createSprite(100, 100, 60, 10);
+  var arrow= createSprite(350, 100, 60, 10);
   arrow.addImage(arrowImage);
-  arrowGroup=createGroup()
-  arrow.x = 360;
+  arrowGroup.add(arrow)
   arrow.y=bow.y;
   arrow.velocityX = -4;
   arrow.lifetime = 100;
@@ -131,7 +130,7 @@ if(gamestate===End)
 function redBalloon() {
   var red = createSprite(0,Math.round(random(20, 370)), 10, 10);
   red.addImage(red_balloonImage);
-  redB=createGroup()
+redB.add(red)
   red.velocityX = 3;
   red.lifetime = 150;
   red.scale = 0.1;
@@ -140,17 +139,16 @@ function redBalloon() {
 function blueBalloon() {
   var blue = createSprite(0,Math.round(random(20, 370)), 10, 10);
   blue.addImage(blue_balloonImage);
-  blueB=createGroup()
+blueB.add(blue)
   blue.velocityX = 3;
   blue.lifetime = 150;
   blue.scale = 0.1;
-
 }
 
 function greenBalloon() {
   var green = createSprite(0,Math.round(random(20, 370)), 10, 10);
   green.addImage(green_balloonImage);
-  greenB=createGroup()
+greenB.add(green)
   green.velocityX = 3;
   green.lifetime = 150;
   green.scale = 0.1;
@@ -159,11 +157,23 @@ function greenBalloon() {
 function pinkBalloon() {
   var pink = createSprite(0,Math.round(random(20, 370)), 10, 10);
   pink.addImage(pink_balloonImage);
-  pinkB=createGroup()
+pinkB.add(pink)
   pink.velocityX = 3;
   pink.lifetime = 150;
   pink.scale = 1
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
